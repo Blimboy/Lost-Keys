@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Location via SMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .centered-content {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="message" class="centered-content"></div>
+    <div class="centered-content">
+        <button id="sendSmsButton" style="display: none;">Click here to send them your location by SMS</button>
+    </div>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function sendLocation(phoneNumber, phoneNumber1, name) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const googleMapsUrl = `https://www.google.com/maps/@${latitude},${longitude},14z?entry=ttu`;
+                    const smsBody = `I've just found ${name}, Here's my current location:\n${googleMapsUrl}`;
+                    const encodedSmsBody = encodeURIComponent(smsBody);
+
+                    // Open the SMS app with the pre-filled message
+                    if (/android/i.test(navigator.userAgent)) {
+                        window.location.href = `sms:${phoneNumber};${phoneNumber1}?body=${encodedSmsBody}`;
+                    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                        window.location.href = `sms:${phoneNumber}&body=${encodedSmsBody}`;
+                    } else {
+                        alert('SMS functionality is not supported on this device.');
+                    }
+                }, function(error) {
+                    alert("Error getting location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const phoneNumber = getQueryParam('phone');
+            const name = getQueryParam('dogname');
+
+            if (phoneNumber && name) {
+                const messageDiv = document.getElementById('message');
+                const sendSmsButton = document.getElementById('sendSmsButton');
+
+                messageDiv.innerHTML = `
+                    <p>My name is ${name}.</p>
+                    <p>Please could you call my owners on:</p>
+                    <p><a href="tel:${phoneNumber}">${phoneNumber}</a></p>
+                 `;
+                
+                sendSmsButton.style.display = 'block';
+
+                sendSmsButton.addEventListener('click', function() {
+                    sendLocation(phoneNumber, name);
+                });
+            } else {
+                alert('Required details are missing!');
+            }
+        });
+    </script>
+</body>
+</html>
