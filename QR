@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Generator</title>
+    <!-- Include QRious directly from GitHub -->
+    <script src="https://cdn.jsdelivr.net/gh/neocotic/qrious/dist/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px; /* Reduce padding for the body */
+        }
+        .centered-content {
+            text-align: center;
+            margin: 10px 0; /* Reduce top and bottom margins for centered content */
+        }
+        button, input {
+            padding: 8px; /* Reduce padding */
+            margin: 5px 0; /* Reduce margins */
+            font-size: 16px;
+            display: block;
+            margin: 8px auto; /* Reduce overall margin */
+        }
+        #qr-image {
+            display: block;
+            margin: 15px auto; /* Reduce margins */
+        }
+        #dog-gone-image {
+            display: block;
+            margin: 15px auto; /* Reduce margins */
+            max-width: 100%; /* Ensure the image fits the screen width */
+            height: auto;   /* Maintain the aspect ratio */
+        }
+        .qr-content {
+            margin-top: 15px; /* Reduce top margin */
+            font-size: 16px;
+            word-wrap: break-word;
+        }
+        .hidden {
+            display: none;
+        }
+        .invisible {
+            position: absolute;
+            left: -9999px;
+        }
+        .container {
+            margin: 10px 0; /* Reduce top and bottom margins for container */
+        }
+        .button-container {
+            margin: 10px 0; /* Reduce top and bottom margins for button container */
+        }
+        .button-container a {
+            padding: 8px 16px; /* Reduce padding for buttons */
+        }
+    </style>
+</head>
+<body>
+    <h1>Dog-Gone QR Generator</h1>
+    <form id="qr-form">
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" required>
+        <br><br>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <br>
+    <div class="centered-content">
+        <img id="qr-image" style="display: none;" alt="QR Code">
+        <button id="download-button" style="display: none;">Download QR Code</button>
+    </div>
+    <div class="qr-content" id="qr-content" style="display: none;">
+        <p>If you would like to order a QR Tag from our Etsy store, please click the 'Copy QR Text' button then click the 'Order a Lost_Keys Tag' button, you can then paste it directly into the personalisation space on the order page:</p>
+        <p id="qr-text" class="invisible"></p>
+        <button id="copy-button">Copy QR Text</button>
+    </div>
+    <br>
+    <div class="centered-content">
+        <a href="https://amzn.to/4bOsYuz" target="_blank">
+            <img id="dog-gone-image" src="https://sheffieldengraving.com/cdn/shop/products/A8_5dc76f22-8820-43e1-911a-d26a59817d99.jpg?v=1667143730&width=360" alt="Dog-Gone Tag">
+        </a>
+    </div>
+    <button id="order-button" class="hidden">Order a Dog-Gone Tag</button>
+    <br><br>
+    <div class="container hidden" id="donation-container">
+        <div class="text">
+            <p>If you'd like to make a donation to support this project. </p>
+        </div>
+        <div class="button-container">
+            <a href="https://pay.collctiv.com/dog-gone-51427" target="_blank">Click here to donate £1</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrForm = document.getElementById('qr-form');
+            const phoneInput = document.getElementById('phone');
+            const phone1Input = document.getElementById('phone1');
+            const dognameInput = document.getElementById('dogname');
+            const qrImage = document.getElementById('qr-image');
+            const downloadButton = document.getElementById('download-button');
+            const orderButton = document.getElementById('order-button');
+            const donationContainer = document.getElementById('donation-container');
+            const qrContentDiv = document.getElementById('qr-content');
+            const qrText = document.getElementById('qr-text');
+            const copyButton = document.getElementById('copy-button');
+
+            qrForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                let defaultURL = 'https://blimboy.github.io/Lost-Keys/index1.html';
+                const phone = phoneInput.value.trim().slice(-10); // Get the last 10 digits
+                
+                let qrContent = `${defaultURL}?phone=%2B44${phone}`;
+                
+                const qrSize = 200; // Size of the QR code
+
+                // Create a QRious instance to generate the QR code
+                const qr = new QRious({
+                    value: qrContent,
+                    size: qrSize,
+                    padding: 0, // No padding around the QR code
+                    foreground: 'black',
+                    background: 'white'
+                });
+
+                // Display the QR code in the img element
+                qrImage.src = qr.toDataURL();
+                qrImage.style.display = 'block';
+
+                // Show the download button
+                downloadButton.style.display = 'inline';
+
+                // Hide the qrContent but still make it available for copying
+                qrText.textContent = qrContent;
+                qrContentDiv.style.display = 'block';
+
+                // Make order button and donation container visible
+                orderButton.classList.remove('hidden');
+                donationContainer.classList.remove('hidden');
+            });
+
+            downloadButton.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = qrImage.src;
+                link.download = 'qr-code.png';
+                link.click();
+            });
+
+            copyButton.addEventListener('click', function() {
+                navigator.clipboard.writeText(qrText.textContent);
+            });
+
+            orderButton.addEventListener('click', function() {
+                window.open('https://www.etsy.com/uk/listing/4398946898/pet-id-tag-dog-gonecouk', '_blank');
+            });
+        });
+    </script>
+</body>
+</html>
